@@ -1,4 +1,4 @@
-from typing import List
+from typing import Any, Dict, List
 import pickle
 
 from autoop.core.ml.artifact import Artifact
@@ -11,10 +11,10 @@ import numpy as np
 
 
 class Pipeline():
-    
-    def __init__(self, 
+
+    def __init__(self,
                  metrics: List[Metric],
-                 dataset: Dataset, 
+                 dataset: Dataset,
                  model: Model,
                  input_features: List[Feature],
                  target_feature: Feature,
@@ -27,10 +27,16 @@ class Pipeline():
         self._metrics = metrics
         self._artifacts = {}
         self._split = split
-        if target_feature.type == "categorical" and model.type != "classification":
-            raise ValueError("Model type must be classification for categorical target feature")
+        if (target_feature.type == "categorical"
+                and model.type != "classification"):
+            raise ValueError(
+                "Model type must be classification for "
+                "categorical target feature"
+                )
         if target_feature.type == "continuous" and model.type != "regression":
-            raise ValueError("Model type must be regression for continuous target feature")
+            raise ValueError(
+                "Model type must be regression for continuous target feature"
+                )
 
     def __str__(self):
         return f"""
@@ -49,7 +55,9 @@ Pipeline(
 
     @property
     def artifacts(self) -> List[Artifact]:
-        """Used to get the artifacts generated during the pipeline execution to be saved
+        """
+        Used to get the artifacts generated during the
+        ipeline execution to be saved
         """
         artifacts = []
         for name, artifact in self._artifacts.items():
@@ -67,30 +75,48 @@ Pipeline(
             "target_feature": self._target_feature,
             "split": self._split,
         }
-        artifacts.append(Artifact(name="pipeline_config", data=pickle.dumps(pipeline_data)))
-        artifacts.append(self._model.to_artifact(name=f"pipeline_model_{self._model.type}"))
+        artifacts.append(
+            Artifact(name="pipeline_config", data=pickle.dumps(pipeline_data))
+            )
+        artifacts.append(
+            self._model.to_artifact(name=f"pipeline_model_{self._model.type}")
+            )
         return artifacts
-    
+
     def _register_artifact(self, name: str, artifact):
         self._artifacts[name] = artifact
 
     def _preprocess_features(self):
-        (target_feature_name, target_data, artifact) = preprocess_features([self._target_feature], self._dataset)[0]
+        (target_feature_name, target_data, artifact) = preprocess_features(
+            [self._target_feature], self._dataset)[0]
         self._register_artifact(target_feature_name, artifact)
-        input_results = preprocess_features(self._input_features, self._dataset)
+        input_results = preprocess_features(
+            self._input_features, self._dataset
+            )
         for (feature_name, data, artifact) in input_results:
             self._register_artifact(feature_name, artifact)
-        # Get the input vectors and output vector, sort by feature name for consistency
+        # Get the input vectors and output vector,
+        # sort by feature name for consistency
         self._output_vector = target_data
-        self._input_vectors = [data for (feature_name, data, artifact) in input_results]
+        self._input_vectors = [
+            data for (feature_name, data, artifact) in input_results
+            ]
 
     def _split_data(self):
         # Split the data into training and testing sets
         split = self._split
-        self._train_X = [vector[:int(split * len(vector))] for vector in self._input_vectors]
-        self._test_X = [vector[int(split * len(vector)):] for vector in self._input_vectors]
-        self._train_y = self._output_vector[:int(split * len(self._output_vector))]
-        self._test_y = self._output_vector[int(split * len(self._output_vector)):]
+        self._train_X = [
+            vector[:int(split * len(vector))] for vector in self._input_vectors
+            ]
+        self._test_X = [
+            vector[int(split * len(vector)):] for vector in self._input_vectors
+            ]
+        self._train_y = self._output_vector[
+            :int(split * len(self._output_vector))
+            ]
+        self._test_y = self._output_vector[
+            int(split * len(self._output_vector)):
+            ]
 
     def _compact_vectors(self, vectors: List[np.array]) -> np.array:
         return np.concatenate(vectors, axis=1)
@@ -110,15 +136,50 @@ Pipeline(
             self._metrics_results.append((metric, result))
         self._predictions = predictions
 
-    def execute(self):
+    def execute(self) -> Dict[str, Any]:
+        """
+        Executes the pipeline by preprocessing features, splitting data,
+        training the model, and evaluating metrics on both training
+        and test sets.
+
+        Returns:
+            Dict[str, Any]: A dictionary containing metrics and
+            predictions for training and evaluation sets.
+        """
+        # Step 1: Preprocess features
         self._preprocess_features()
         self._split_data()
-        self._train()
-        self._evaluate()
-        return {
-            "metrics": self._metrics_results,
-            "predictions": self._predictions,
-        }
-        
 
-    
+        # Step 2: Train the model on the training data
+        X_train = self._compact_vectors(self._train_X)
+        y_train = self._train_y
+        self._model.fit(X_train, y_train)
+
+        # Step 3: Prepare data for evaluation
+        X_test = self._compact_vectors(self._test_X)
+        y_test = self._test_y
+
+        # Step 4: Generate predictions
+        train_predictions = self._model.predict(X_train)
+        test_predictions = self._model.predict(X_test)
+
+        # Step 5: Evaluate metrics for both training and test sets
+        metrics_results = {'training': {}, 'evaluation': {}}
+
+        for metric in self._metrics:
+            metric_name = metric.__class__.__name__
+            metrics_results['training'][metric_name] = metric(
+                train_predictions, y_train
+            )
+            metrics_results['evaluation'][metric_name] = metric(
+                test_predictions, y_test
+            )
+
+        # Step 6: Store predictions and metrics in the result
+        return {
+            "metrics": metrics_results,
+            "predictions": {
+                "train": train_predictions,
+                "test": test_predictions,
+            }
+        }
