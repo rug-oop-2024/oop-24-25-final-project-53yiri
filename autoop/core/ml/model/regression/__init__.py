@@ -1,2 +1,17 @@
+"""
+This package provides regression models for the AutoML framework.
 
-from autoop.core.ml.model.regression.multiple_linear_regression import MultipleLinearRegression
+Available models:
+- MultipleLinearRegression
+- LassoRegression
+- RandomForest
+"""
+from .multiple_linear_regression_model import MultipleLinearRegression
+from .lasso_regression_model import LassoRegression
+from .random_forest_regressor_model import RandomForest
+
+__all__ = [
+    "MultipleLinearRegression",
+    "LassoRegression",
+    "RandomForest",
+]
