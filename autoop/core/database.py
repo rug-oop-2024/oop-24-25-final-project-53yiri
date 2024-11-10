@@ -6,8 +6,39 @@ from autoop.core.storage import Storage
 
 
 class Database():
+    """
+    A class used to represent a Database
 
+    Attributes:
+        _storage : Storage
+            an instance of the Storage class used for persisting data
+        _data : dict
+            a dictionary to store the data in memory
+
+    Methods:
+        set(collection: str, id: str, entry: dict) -> dict
+            Sets a key in the database
+        get(collection: str, id: str) -> Union[dict, None]
+            Gets a key from the database
+        delete(collection: str, id: str)
+            Deletes a key from the database
+        list(collection: str) -> List[Tuple[str, dict]]
+            Lists all data in a collection
+        refresh()
+            Refreshes the database by loading the data from storage
+    """
     def __init__(self, storage: Storage):
+        """
+        Initializes the Database instance.
+
+        Args:
+            storage (Storage): The storage object used for data persistence.
+
+        Attributes:
+            _storage (Storage): The storage object used for data persistence.
+            _data (dict): A dictionary to hold the data loaded from storage.
+        """
+
         self._storage = storage
         self._data = {}
         self._load()

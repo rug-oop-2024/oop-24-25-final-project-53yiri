@@ -10,7 +10,15 @@ REGISTRY_PATH = os.path.join(PIPELINES_DIR, 'registry.json')
 
 
 # Load the registry to access saved pipelines
-def load_registry():
+def load_registry() -> list:
+    """
+    Loads the registry from a JSON file if it exists.
+
+    Returns:
+        list: The list containing the registry data if the file exists,
+                else an empty list.
+    """
+
     if os.path.exists(REGISTRY_PATH):
         with open(REGISTRY_PATH, 'r') as f:
             return json.load(f)
@@ -18,7 +26,17 @@ def load_registry():
 
 
 # Load a specific pipeline from its path
-def load_pipeline(pipeline_path):
+def load_pipeline(pipeline_path: str) -> object:
+    """
+    Load a machine learning pipeline from a specified file path.
+
+    Args:
+        pipeline_path (str): The file path to the serialized pipeline object.
+
+    Returns:
+        object: The deserialized machine learning pipeline.
+    """
+
     with open(pipeline_path, 'rb') as f:
         pipeline = pickle.load(f)
     return pipeline
@@ -35,16 +53,18 @@ if registry:
     st.subheader("Select a Saved Pipeline")
     pipeline_options = [
         f"{p['pipeline_name']} (v{p['pipeline_version']})" for p in registry
-        ]
+    ]
     selected_pipeline = st.selectbox("Choose a pipeline for deployment",
                                      pipeline_options)
 
     # Step 2: Display pipeline summary
     if selected_pipeline:
         selected_pipeline_info = next(
-            (p for p in registry
-             if f"{p['pipeline_name']} (v{p['pipeline_version']})" ==
-             selected_pipeline),
+            (
+                p for p in registry
+                if (f"{p['pipeline_name']} (v{p['pipeline_version']})"
+                    == selected_pipeline)
+            ),
             None
         )
 
@@ -53,20 +73,20 @@ if registry:
             st.write("### Pipeline Summary")
             st.write(
                 f"**Pipeline Name**: {selected_pipeline_info['pipeline_name']}"
-                )
+            )
             st.write(
                 f"**Version**: {selected_pipeline_info['pipeline_version']}"
-                )
+            )
             st.write(f"**Model Type**: {selected_pipeline_info['model_type']}")
             st.write(f"**Model Name**: {selected_pipeline_info['model_name']}")
             st.write(
                 "**Input Features**: "
                 f"{', '.join(selected_pipeline_info['input_features'])}"
-                )
+            )
             st.write(
                 "**Target Feature**: "
                 f"{selected_pipeline_info['target_feature']}"
-                )
+            )
             st.write("**Metrics**:")
             for metric_name, scores in selected_pipeline_info["metrics"]\
                     .items():
@@ -81,7 +101,7 @@ if registry:
             st.subheader("Upload Data for Prediction")
             uploaded_file = st.file_uploader(
                 "Upload CSV file for prediction", type=["csv"]
-                )
+            )
 
             if uploaded_file:
                 # Read and display the uploaded data
@@ -93,17 +113,17 @@ if registry:
                     # Select the required input features from the uploaded data
                     input_features = [
                         feature.name for feature in pipeline._input_features
-                        ]
+                    ]
                     missing_features = [
                         feat for feat in input_features
                         if feat not in new_data.columns
-                        ]
+                    ]
 
                     if missing_features:
                         st.error(
                             "Uploaded data missing required input features: "
                             f"{', '.join(missing_features)}"
-                            )
+                        )
                     else:
                         # Keep only required input features for predictions
                         new_data = new_data[input_features]
@@ -115,7 +135,7 @@ if registry:
                         st.write("### Predictions")
                         prediction_df = pd.DataFrame(
                             predictions, columns=["Predicted Output"]
-                            )
+                        )
                         st.dataframe(prediction_df)
 
                         # Provide option to download predictions

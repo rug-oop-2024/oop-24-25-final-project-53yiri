@@ -126,8 +126,9 @@ class R2Score(Metric):
         y_true (np.ndarray): Ground truth (correct) target values.
         y_pred (np.ndarray): Estimated target values.
         Returns:
-        float: R^2 score, which is a measure of how well the predictions approximate the true values. 
-               The best possible score is 1.0 and it can be negative (because the model can be arbitrarily worse).
+        float: R^2 score, which is a measure of how well the predictions
+                approximate the true values.
+               The best possible score is 1.0 and it can be negative.
         """
 
         return r2_score(y_true, y_pred)
