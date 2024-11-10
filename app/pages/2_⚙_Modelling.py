@@ -125,11 +125,18 @@ if selected_dataset:
 
     # Create options for selecting input and target features
     feature_names = [f.name for f in features]
-    selected_input_features = st.multiselect(
-        "Select Input Features", feature_names
-    )
+
+    # Select target feature first
     selected_target_feature = st.selectbox(
         "Select Target Feature", feature_names
+    )
+
+    # Exclude the selected target feature from input features
+    input_feature_options = [
+        f for f in feature_names if f != selected_target_feature
+    ]
+    selected_input_features = st.multiselect(
+        "Select Input Features", input_feature_options
     )
 
     # Determine the task type based on the selected target feature

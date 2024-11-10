@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import os
 from app.core.system import AutoMLSystem
 from autoop.core.ml.dataset import Dataset
 
@@ -16,8 +17,7 @@ def display_existing_datasets(automl: AutoMLSystem) -> None:
 
     if datasets:
         for dataset in datasets:
-            dataset_name = dataset.metadata.get("name", "Unnamed Dataset")
-            st.write(f"Dataset Name: {dataset_name}")
+            st.write(f"Dataset Name: {dataset.name}")
             st.write(f"Version: {dataset.version}")
             st.write("---")
     else:
@@ -49,23 +49,36 @@ def upload_new_dataset(automl: AutoMLSystem) -> None:
         dataset_name = st.text_input("Dataset Name", "my_dataset")
         dataset_version = st.text_input("Dataset Version", "1.0.0")
 
+        # Create a unique asset_path for each dataset
+        asset_dir = os.path.join('assets', 'datasets')
+        os.makedirs(asset_dir, exist_ok=True)
+        asset_path = os.path.join(
+            asset_dir, f"{dataset_name}_{dataset_version}.csv"
+        )
+
         # Save the dataset as an artifact
         if st.button("Save Dataset"):
-            try:
-                # Convert DataFrame to Dataset object
-                dataset = Dataset.from_dataframe(
-                    data=df,
-                    name=dataset_name,
-                    asset_path="path/to/store",  # Ensure this path is valid
-                    version=dataset_version
-                )
+            if not dataset_name:
+                st.error("Please enter a name for the dataset.")
+            else:
+                try:
+                    # Save the DataFrame to a CSV file
+                    df.to_csv(asset_path, index=False)
 
-                # Register the dataset in AutoMLSystem
-                automl.registry.register(dataset)
-                st.success(f"Dataset '{dataset_name}' version "
-                           f"'{dataset_version}' saved successfully!")
-            except Exception as e:
-                st.error(f"Failed to save dataset: {e}")
+                    # Convert DataFrame to Dataset object
+                    dataset = Dataset.from_dataframe(
+                        data=df,
+                        name=dataset_name,
+                        asset_path=asset_path,
+                        version=dataset_version
+                    )
+
+                    # Register the dataset in AutoMLSystem
+                    automl.registry.register(dataset)
+                    st.success(f"Dataset '{dataset_name}' version "
+                               f"'{dataset_version}' saved successfully!")
+                except Exception as e:
+                    st.error(f"Failed to save dataset: {e}")
 
 
 def main() -> None:
