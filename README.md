@@ -186,3 +186,14 @@ If you add extra features, please indicate them below:
 |-------------------------------------- |--------------|----------------------|---------|-----|
 |`ST/modelling/graph-report`           |FN            |both                      |x         | |
 
+## Notes
+We have provided 5 real life datasets from Kaggle. The best dataset for:
+   1. Classification:
+      1. Sleep_health_and_lifestyle_dataset.csv (Sleep and lifestyles data)
+      2. university_rankings.csv (University rankings)
+      3. iris.csv (Iris flower data)
+   2. Regression:
+      1. university_rankings.csv (University rankings)
+      2. Sleep_health_and_lifestyle_dataset.csv (Sleep and lifestyles data)
+      3. world_happiness_2019.csv (Country happiness score and data)
+      4. House_Rent_Dataset.csv (Rent prices data)
