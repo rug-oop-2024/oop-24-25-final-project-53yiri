@@ -13,21 +13,21 @@ class Artifact(BaseModel):
     name: str = Field(..., description="Name of the artifact.")
     asset_path: str = Field(
         ..., description="Path to the asset in the storage system."
-        )
+    )
     version: str = Field(..., description="Version of the artifact.")
     data: Any = Field(
         ...,
         description="Binary or object data representing artifact's content."
-        )
+    )
     metadata: Dict[str, Any] = Field(
         default_factory=dict, description="Metadata associated with artifact."
-        )
+    )
     type: Optional[str] = Field(
         None, description="Type of the artifact."
-        )
+    )
     tags: List[str] = Field(
         default_factory=list, description="Tags that categorize artifact."
-        )
+    )
 
     @property
     def id(self) -> str:
