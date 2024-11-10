@@ -141,7 +141,7 @@ Pipeline(
         )
         return artifacts
 
-    def _register_artifact(self, name: str, artifact) -> None:
+    def _register_artifact(self, name: str, artifact: object) -> None:
         """Registers an artifact with the given name."""
         self._artifacts[name] = artifact
 

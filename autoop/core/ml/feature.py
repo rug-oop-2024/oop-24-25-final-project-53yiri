@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, root_validator
+from pydantic import BaseModel, Field, model_validator
 from typing import Literal
 
 
@@ -21,7 +21,7 @@ class Feature(BaseModel):
         0, ge=0, description="Number of unique values in the feature."
     )
 
-    @root_validator(pre=True)
+    @model_validator(mode='before')
     def handle_test_compatibility(cls, values):
         """
         Validator to support compatibility with test cases that
