@@ -37,9 +37,18 @@ if "trained" not in st.session_state:
     st.session_state["test_predictions"] = None
 
 
-def get_model(model_name: str):
+def get_model(model_name: str) -> (
+    KNearestNeighbors | Logistic | SupportVectorMachine | LassoRegression |
+    MultipleLinearRegression | RandomForest
+        ):
     """
     Factory function to instantiate the model based on the selected model name.
+
+    Args:
+        model_name (str): The name of the model to instantiate.
+
+    Returns:
+        object: An instance of the selected model.
     """
     if model_name == "K-Nearest Neighbors":
         return KNearestNeighbors()
@@ -64,7 +73,13 @@ if "trained" not in st.session_state:
 st.set_page_config(page_title="Modelling", page_icon="📈")
 
 
-def write_helper_text(text: str):
+def write_helper_text(text: str) -> None:
+    """
+    Writes helper text in a stylized format on the Streamlit app.
+
+    Args:
+        text (str): The helper text to display.
+    """
     st.write(f"<p style=\"color: #888;\">{text}</p>", unsafe_allow_html=True)
 
 
@@ -109,10 +124,12 @@ if selected_dataset:
 
     # Create options for selecting input and target features
     feature_names = [f.name for f in features]
-    selected_input_features = st.multiselect("Select Input Features",
-                                             feature_names)
-    selected_target_feature = st.selectbox("Select Target Feature",
-                                           feature_names)
+    selected_input_features = st.multiselect(
+        "Select Input Features", feature_names
+        )
+    selected_target_feature = st.selectbox(
+        "Select Target Feature", feature_names
+        )
 
     # Determine the task type based on the selected target feature
     target_feature = next(
