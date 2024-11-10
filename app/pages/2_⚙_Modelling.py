@@ -16,6 +16,7 @@ from sklearn.metrics import confusion_matrix, classification_report
 import pickle
 import os
 import json
+from typing import Union
 
 # Path to the pipelines directory
 PIPELINES_DIR = os.path.join('assets', 'pipelines')
@@ -37,10 +38,10 @@ if "trained" not in st.session_state:
     st.session_state["test_predictions"] = None
 
 
-def get_model(model_name: str) -> (
-    KNearestNeighbors | Logistic | SupportVectorMachine | LassoRegression |
-    MultipleLinearRegression | RandomForest
-        ):
+def get_model(model_name: str) -> Union[
+    KNearestNeighbors, Logistic, SupportVectorMachine,
+    LassoRegression, MultipleLinearRegression, RandomForest
+        ]:
     """
     Factory function to instantiate the model based on the selected model name.
 
