@@ -158,7 +158,7 @@ class Precision(Metric):
     Args:
         average (str): Averaging method for multi-class data.
     """
-    def __init__(self, average='macro'):
+    def __init__(self, average='macro') -> None:
         """
         Initializes the metric with the specified averaging method.
         Args:
@@ -187,7 +187,7 @@ class Recall(Metric):
     Args:
         average (str): Averaging method for multi-class data.
     """
-    def __init__(self, average='macro'):
+    def __init__(self, average='macro') -> None:
         """
         Initializes the metric with the specified averaging method.
 

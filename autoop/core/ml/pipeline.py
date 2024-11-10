@@ -64,8 +64,8 @@ class Pipeline():
                  model: Model,
                  input_features: List[Feature],
                  target_feature: Feature,
-                 split=0.8,
-                 ):
+                 split: float = 0.8,
+                 ) -> None:
         """
         Initializes the pipeline with the given parameters.
 
@@ -141,10 +141,11 @@ Pipeline(
         )
         return artifacts
 
-    def _register_artifact(self, name: str, artifact):
+    def _register_artifact(self, name: str, artifact) -> None:
+        """Registers an artifact with the given name."""
         self._artifacts[name] = artifact
 
-    def _preprocess_features(self):
+    def _preprocess_features(self) -> None:
         (target_feature_name, target_data, artifact) = preprocess_features(
             [self._target_feature], self._dataset)[0]
         self._register_artifact(target_feature_name, artifact)
@@ -160,7 +161,7 @@ Pipeline(
             data for (feature_name, data, artifact) in input_results
         ]
 
-    def _split_data(self):
+    def _split_data(self) -> None:
         # Split the data into training and testing sets
         split = self._split
         self._train_X = [
@@ -177,14 +178,15 @@ Pipeline(
         ]
 
     def _compact_vectors(self, vectors: List[np.array]) -> np.array:
+        """Compacts a list of vectors into a single numpy array."""
         return np.concatenate(vectors, axis=1)
 
-    def _train(self):
+    def _train(self) -> None:
         X = self._compact_vectors(self._train_X)
         Y = self._train_y
         self._model.fit(X, Y)
 
-    def _evaluate(self):
+    def _evaluate(self) -> None:
         X = self._compact_vectors(self._test_X)
         Y = self._test_y
         self._metrics_results = []

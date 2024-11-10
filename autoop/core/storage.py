@@ -11,7 +11,7 @@ class NotFoundError(Exception):
     Attributes:
         path (str): The path that was not found.
     """
-    def __init__(self, path: str):
+    def __init__(self, path: str) -> None:
         """
         Custom exception raised when a specified path is not found.
 

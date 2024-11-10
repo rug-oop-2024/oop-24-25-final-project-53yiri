@@ -62,8 +62,10 @@ if registry:
         selected_pipeline_info = next(
             (
                 p for p in registry
-                if (f"{p['pipeline_name']} (v{p['pipeline_version']})"
-                    == selected_pipeline)
+                if (
+                    f"{p['pipeline_name']} "
+                    f"(v{p['pipeline_version']})" == selected_pipeline
+                )
             ),
             None
         )
