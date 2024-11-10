@@ -165,8 +165,8 @@ If you did not implement the feature
 | `ML/model`                            | NF           |r                     |x        | |
 | `ML/model/extensions`                 | FN           |r                     |x        | |
 | `ML/pipeline/evaluation`              | FN           |r                     |x        | | 
-| `ST/page/datasets`                    | NF           |r                     |x        | |
-| `ST/datasets/management/create`       | FN           |r                     |x        | |
+| `ST/page/datasets`                    | NF           |y                     |x        | |
+| `ST/datasets/management/create`       | FN           |y                     |x        | |
 | `ST/datasets/management/save`         | FN           |y                     |x        | |
 | `ST/page/modelling`                   | NF           |r                     |x        | |
 | `ST/modelling/datasets/list`          | FN           |r                     |x        | |
@@ -176,15 +176,15 @@ If you did not implement the feature
 | `ST/modelling/pipeline/metrics`       | FN           |y                     |x        | |
 | `ST/modelling/pipeline/summary`       | FN           |y                     |x        | |
 | `ST/modelling/pipeline/train`         | FN           |both                  |x        | |
-| `ST/modelling/pipeline/save`          | FN           |y                     |x        | |
+| `ST/modelling/pipeline/save`          | FN           |both                  |x        | |
 | `ST/page/deployment`                  | FN           |both                  |x        | |
 | `ST/deployment/load`                  | FN           |both                  |x        | |
-| `ST/deployment/predict`               | FN           |both                  |x        |Not fully functioning |
+| `ST/deployment/predict`               | FN           |both                  |x        | |
 
 If you add extra features, please indicate them below:
 | Requirement                           | Type (FN/NF) | Implemented by       | Implementation Completed (add X if done) | Comment |
 |-------------------------------------- |--------------|----------------------|---------|-----|
-|`ST/modelling/graph-report`           |FN            |both                      |x         | |
+|`ST/modelling/graph-report`           |FN            |both                      |x         |Confusiion matrix may give difficult to read graph if there are too many values(labels). |
 
 ## Notes
 We have provided 5 real life datasets from Kaggle. The best dataset for:
