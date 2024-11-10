@@ -1,5 +1,9 @@
 from abc import ABC, abstractmethod
 import numpy as np
+from sklearn.metrics import (
+    mean_squared_error, mean_absolute_error, r2_score,
+    accuracy_score, precision_score, recall_score
+)
 
 # List of available metric names
 METRICS = [
@@ -30,15 +34,15 @@ def get_metric(name: str) -> "Metric":
         "mean_absolute_error": MeanAbsoluteError(),
         "r2_score": R2Score(),
         "accuracy": Accuracy(),
-        "precision": Precision(),
-        "recall": Recall()
+        "precision": Precision(average='macro'),
+        "recall": Recall(average='macro')
     }
     if name in metric_map:
         return metric_map[name]
     else:
         raise ValueError(
             f"Metric '{name}' is not implemented. Available metrics: {METRICS}"
-            )
+        )
 
 
 class Metric(ABC):
@@ -76,48 +80,58 @@ class Metric(ABC):
         """
         return self(y_true, y_pred)
 
-
 # Regression Metrics
+
 
 class MeanSquaredError(Metric):
     """Calculates the Mean Squared Error (MSE) for regression tasks."""
     def __call__(self, y_true: np.ndarray, y_pred: np.ndarray) -> float:
-        return np.mean((y_true - y_pred) ** 2)
+        return mean_squared_error(y_true, y_pred)
 
 
 class MeanAbsoluteError(Metric):
     """Calculates the Mean Absolute Error (MAE) for regression tasks."""
     def __call__(self, y_true: np.ndarray, y_pred: np.ndarray) -> float:
-        return np.mean(np.abs(y_true - y_pred))
+        return mean_absolute_error(y_true, y_pred)
 
 
 class R2Score(Metric):
     """Calculates the R-squared (R2) score for regression tasks."""
     def __call__(self, y_true: np.ndarray, y_pred: np.ndarray) -> float:
-        ss_total = np.sum((y_true - np.mean(y_true)) ** 2)
-        ss_residual = np.sum((y_true - y_pred) ** 2)
-        return 1 - (ss_residual / ss_total)
-
+        return r2_score(y_true, y_pred)
 
 # Classification Metrics
+
 
 class Accuracy(Metric):
     """Calculates accuracy for classification tasks."""
     def __call__(self, y_true: np.ndarray, y_pred: np.ndarray) -> float:
-        return np.mean(y_true == y_pred)
+        return accuracy_score(y_true, y_pred)
 
 
 class Precision(Metric):
-    """Calculates precision for binary classification tasks."""
+    """
+    Calculates precision for classification tasks.
+
+    Args:
+        average (str): Averaging method for multi-class data.
+    """
+    def __init__(self, average='macro'):
+        self.average = average
+
     def __call__(self, y_true: np.ndarray, y_pred: np.ndarray) -> float:
-        true_positive = np.sum((y_pred == 1) & (y_true == 1))
-        false_positive = np.sum((y_pred == 1) & (y_true == 0))
-        return true_positive / (true_positive + false_positive + 1e-10)
+        return precision_score(y_true, y_pred, average=self.average)
 
 
 class Recall(Metric):
-    """Calculates recall for binary classification tasks."""
+    """
+    Calculates recall for classification tasks.
+
+    Args:
+        average (str): Averaging method for multi-class data.
+    """
+    def __init__(self, average='macro'):
+        self.average = average
+
     def __call__(self, y_true: np.ndarray, y_pred: np.ndarray) -> float:
-        true_positive = np.sum((y_pred == 1) & (y_true == 1))
-        false_negative = np.sum((y_pred == 0) & (y_true == 1))
-        return true_positive / (true_positive + false_negative + 1e-10)
+        return recall_score(y_true, y_pred, average=self.average)

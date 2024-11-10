@@ -8,31 +8,26 @@ class Artifact(BaseModel):
     Represents an artifact in the AutoML system,
     encapsulating details about a dataset,
     model, or other assets used within the pipeline.
-
-    Attributes:
-        asset_path (str): The path where the asset is stored.
-        version (str): The version identifier for the artifact.
-        data (Any): The actual content or state data of the artifact.
-        metadata (Dict[str, Any]): Additional metadata about the artifact,
-        such as experiment ID or tags.
-        type (Optional[str]): The type of the artifact, e.g., 'model:torch' or
-        'dataset:csv'.
-        tags (List[str]): Tags that categorize or describe the artifact.
     """
 
-    asset_path: str = Field(..., description="Path to the asset in the"
-                            "storage system.")
-    version: str = Field(..., description="Version of the artifact.")
-    data: Any = Field(..., description="Binary or object data representing the"
-                      "artifact's content.")
-    metadata: Dict[str, Any] = Field(
-        default_factory=dict,
-        description="Metadata associated with the artifact."
+    name: str = Field(..., description="Name of the artifact.")
+    asset_path: str = Field(
+        ..., description="Path to the asset in the storage system."
         )
-    type: Optional[str] = Field(None, description="Type of the artifact, e.g.,"
-                                "'model:torch', 'dataset:csv'.")
-    tags: List[str] = Field(default_factory=list, description="List of tags"
-                            "that categorize the artifact.")
+    version: str = Field(..., description="Version of the artifact.")
+    data: Any = Field(
+        ...,
+        description="Binary or object data representing artifact's content."
+        )
+    metadata: Dict[str, Any] = Field(
+        default_factory=dict, description="Metadata associated with artifact."
+        )
+    type: Optional[str] = Field(
+        None, description="Type of the artifact."
+        )
+    tags: List[str] = Field(
+        default_factory=list, description="Tags that categorize artifact."
+        )
 
     @property
     def id(self) -> str:

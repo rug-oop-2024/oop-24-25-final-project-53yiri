@@ -30,7 +30,7 @@ class MultipleLinearRegression(Model):
             X (np.ndarray): Training features.
             y (np.ndarray): Training labels.
         """
-        self._model.fit(X, y)
+        self._model.fit(X, y.ravel())
         self.parameters = self._model.get_params()
 
     def predict(self, X: np.ndarray) -> np.ndarray:
@@ -44,3 +44,4 @@ class MultipleLinearRegression(Model):
             np.ndarray: Predicted values.
         """
         return self._model.predict(X)
+

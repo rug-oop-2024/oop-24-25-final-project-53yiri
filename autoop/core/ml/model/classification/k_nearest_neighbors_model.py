@@ -18,7 +18,7 @@ class KNearestNeighbors(Model):
             kwargs: Additional keyword arguments for KNN model.
         """
         super().__init__()
-        self.model = KNeighborsClassifier(n_neighbors=n_neighbors, **kwargs)
+        self._model = KNeighborsClassifier(n_neighbors=n_neighbors, **kwargs)
 
     def fit(self, X: np.ndarray, y: np.ndarray) -> None:
         """
@@ -28,8 +28,8 @@ class KNearestNeighbors(Model):
             X (np.ndarray): Training features.
             y (np.ndarray): Training labels.
         """
-        self.model.fit(X, y)
-        self.parameters = self.model.get_params()
+        self._model.fit(X, y)
+        self.parameters = self._model.get_params()
 
     def predict(self, X: np.ndarray) -> np.ndarray:
         """
@@ -41,4 +41,4 @@ class KNearestNeighbors(Model):
         Returns:
             np.ndarray: Predicted class labels.
         """
-        return self.model.predict(X)
+        return self._model.predict(X)

@@ -8,7 +8,7 @@ class LassoRegression(Model):
     Wrapper for the Lasso Regression model.
     """
 
-    def __init__(self, alpha: float = 1.0, **kwargs) -> None:
+    def __init__(self, alpha: float = 10.0, **kwargs) -> None:
         """
         Initializes the Lasso Regression model with L1 regularization.
 
@@ -17,7 +17,7 @@ class LassoRegression(Model):
             kwargs: Additional keyword arguments for Lasso Regression model.
         """
         super().__init__()
-        self.model = Lasso(alpha=alpha, **kwargs)
+        self._model = Lasso(alpha=alpha, **kwargs)
 
     def fit(self, X: np.ndarray, y: np.ndarray) -> None:
         """
@@ -27,8 +27,8 @@ class LassoRegression(Model):
             X (np.ndarray): Training features.
             y (np.ndarray): Training labels.
         """
-        self.model.fit(X, y)
-        self.parameters = self.model.get_params()
+        self._model.fit(X, y.ravel())
+        self.parameters = self._model.get_params()
 
     def predict(self, X: np.ndarray) -> np.ndarray:
         """
@@ -40,4 +40,4 @@ class LassoRegression(Model):
         Returns:
             np.ndarray: Predicted values.
         """
-        return self.model.predict(X)
+        return self._model.predict(X)

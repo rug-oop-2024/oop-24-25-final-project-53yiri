@@ -17,7 +17,7 @@ class Logistic(Model):
             kwargs: Additional keyword arguments for Logistic Regression model.
         """
         super().__init__()
-        self.model = LogisticRegression(**kwargs)
+        self._model = LogisticRegression(**kwargs)
 
     def fit(self, X: np.ndarray, y: np.ndarray) -> None:
         """
@@ -27,8 +27,8 @@ class Logistic(Model):
             X (np.ndarray): Training features.
             y (np.ndarray): Training labels.
         """
-        self.model.fit(X, y)
-        self.parameters = self.model.get_params()
+        self._model.fit(X, y)
+        self.parameters = self._model.get_params()
 
     def predict(self, X: np.ndarray) -> np.ndarray:
         """
@@ -40,4 +40,4 @@ class Logistic(Model):
         Returns:
             np.ndarray: Predicted class labels.
         """
-        return self.model.predict(X)
+        return self._model.predict(X)

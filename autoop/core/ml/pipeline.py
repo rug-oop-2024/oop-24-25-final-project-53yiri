@@ -1,9 +1,9 @@
-from typing import Any, Dict, List
+from typing import List
 import pickle
 
 from autoop.core.ml.artifact import Artifact
 from autoop.core.ml.dataset import Dataset
-from autoop.core.ml.model import Model
+from autoop.core.ml.model.model import Model
 from autoop.core.ml.feature import Feature
 from autoop.core.ml.metric import Metric
 from autoop.functional.preprocessing import preprocess_features
@@ -27,16 +27,6 @@ class Pipeline():
         self._metrics = metrics
         self._artifacts = {}
         self._split = split
-        if (target_feature.type == "categorical"
-                and model.type != "classification"):
-            raise ValueError(
-                "Model type must be classification for "
-                "categorical target feature"
-                )
-        if target_feature.type == "continuous" and model.type != "regression":
-            raise ValueError(
-                "Model type must be regression for continuous target feature"
-                )
 
     def __str__(self):
         return f"""
@@ -57,7 +47,7 @@ Pipeline(
     def artifacts(self) -> List[Artifact]:
         """
         Used to get the artifacts generated during the
-        ipeline execution to be saved
+        pipeline execution to be saved
         """
         artifacts = []
         for name, artifact in self._artifacts.items():
@@ -136,50 +126,84 @@ Pipeline(
             self._metrics_results.append((metric, result))
         self._predictions = predictions
 
-    def execute(self) -> Dict[str, Any]:
-        """
-        Executes the pipeline by preprocessing features, splitting data,
-        training the model, and evaluating metrics on both training
-        and test sets.
+    def execute(self) -> dict:
+        """Execute the pipeline."""
+        # Step 1: Read the original dataset
+        data = self._dataset.read()
 
-        Returns:
-            Dict[str, Any]: A dictionary containing metrics and
-            predictions for training and evaluation sets.
-        """
-        # Step 1: Preprocess features
+        # Step 2: Extract input and target feature names
+        input_feature_names = [
+            feature.name for feature in self._input_features
+            ]
+        target_feature_name = self._target_feature.name
+
+        # Step 3: Select relevant columns (assuming no missing values)
+        selected_columns = input_feature_names + [target_feature_name]
+        df = data[selected_columns]
+
+        # Step 4: Create a temporary dataset for further processing
+        from autoop.core.ml.dataset import Dataset
+        temp_dataset = Dataset.from_dataframe(
+            data=df,
+            name=self._dataset.name,
+            asset_path=self._dataset.asset_path,
+            version=self._dataset.version
+        )
+        self._dataset = temp_dataset
+
+        # Step 5: Preprocess features
         self._preprocess_features()
+
+        # Step 6: Process the target variable based on feature type
+        target_series = df[target_feature_name]
+        if self._target_feature.feature_type == "categorical":
+            # Encode categorical target variable for classification tasks
+            from sklearn.preprocessing import LabelEncoder
+            label_encoder = LabelEncoder()
+            self._output_vector = label_encoder.fit_transform(target_series)
+            self._register_artifact(
+                'label_encoder', {'type': 'LabelEncoder',
+                                  'encoder': label_encoder}
+                )
+        else:
+            # Use the raw values for regression tasks
+            self._output_vector = target_series.to_numpy()
+
+        # Step 7: Split data into training and test sets
         self._split_data()
 
-        # Step 2: Train the model on the training data
-        X_train = self._compact_vectors(self._train_X)
-        y_train = self._train_y
-        self._model.fit(X_train, y_train)
+        # Step 8: Train the model
+        self._train()
 
-        # Step 3: Prepare data for evaluation
-        X_test = self._compact_vectors(self._test_X)
-        y_test = self._test_y
-
-        # Step 4: Generate predictions
-        train_predictions = self._model.predict(X_train)
-        test_predictions = self._model.predict(X_test)
-
-        # Step 5: Evaluate metrics for both training and test sets
-        metrics_results = {'training': {}, 'evaluation': {}}
-
+        # Step 9: Evaluate the model on the training set
+        train_X = self._compact_vectors(self._train_X)
+        train_Y = self._train_y
+        train_predictions = self._model.predict(train_X)
+        train_metrics_results = {}
         for metric in self._metrics:
             metric_name = metric.__class__.__name__
-            metrics_results['training'][metric_name] = metric(
-                train_predictions, y_train
-            )
-            metrics_results['evaluation'][metric_name] = metric(
-                test_predictions, y_test
-            )
+            train_metric_score = metric.evaluate(train_predictions, train_Y)
+            train_metrics_results[metric_name] = train_metric_score
 
-        # Step 6: Store predictions and metrics in the result
+        # Step 10: Evaluate the model on the test set
+        test_X = self._compact_vectors(self._test_X)
+        test_Y = self._test_y
+        test_predictions = self._model.predict(test_X)
+        test_metrics_results = {}
+        for metric in self._metrics:
+            metric_name = metric.__class__.__name__
+            test_metric_score = metric.evaluate(test_predictions, test_Y)
+            test_metrics_results[metric_name] = test_metric_score
+
+        # Return training and test metrics along with predictions
         return {
-            "metrics": metrics_results,
+            "metrics": {
+                'training': train_metrics_results,
+                'evaluation': test_metrics_results,
+            },
             "predictions": {
                 "train": train_predictions,
                 "test": test_predictions,
-            }
+            },
+            "model": self._model
         }

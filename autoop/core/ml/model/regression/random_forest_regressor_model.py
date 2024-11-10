@@ -8,7 +8,7 @@ class RandomForest(Model):
     Wrapper for the Random Forest Regressor model.
     """
 
-    def __init__(self, n_estimators: int = 100, **kwargs) -> None:
+    def __init__(self, n_estimators: int = 1000, **kwargs) -> None:
         """
         Initializes the Random Forest Regressor model.
 
@@ -18,7 +18,9 @@ class RandomForest(Model):
             Random Forest Regressor model.
         """
         super().__init__()
-        self.model = RandomForestRegressor(n_estimators=n_estimators, **kwargs)
+        self._model = RandomForestRegressor(
+            n_estimators=n_estimators, **kwargs
+            )
 
     def fit(self, X: np.ndarray, y: np.ndarray) -> None:
         """
@@ -28,8 +30,8 @@ class RandomForest(Model):
             X (np.ndarray): Training features.
             y (np.ndarray): Training labels.
         """
-        self.model.fit(X, y)
-        self.parameters = self.model.get_params()
+        self._model.fit(X, y.ravel())
+        self.parameters = self._model.get_params()
 
     def predict(self, X: np.ndarray) -> np.ndarray:
         """
@@ -41,4 +43,4 @@ class RandomForest(Model):
         Returns:
             np.ndarray: Predicted values.
         """
-        return self.model.predict(X)
+        return self._model.predict(X)

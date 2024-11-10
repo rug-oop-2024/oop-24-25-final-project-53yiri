@@ -44,7 +44,7 @@ class ArtifactRegistry():
             )
             artifacts.append(artifact)
         return artifacts
-    
+
     def get(self, artifact_id: str) -> Artifact:
         data = self._database.get("artifacts", artifact_id)
         return Artifact(
@@ -56,12 +56,12 @@ class ArtifactRegistry():
             data=self._storage.load(data["asset_path"]),
             type=data["type"],
         )
-    
+
     def delete(self, artifact_id: str):
         data = self._database.get("artifacts", artifact_id)
         self._storage.delete(data["asset_path"])
         self._database.delete("artifacts", artifact_id)
-    
+
 
 class AutoMLSystem:
     _instance = None
