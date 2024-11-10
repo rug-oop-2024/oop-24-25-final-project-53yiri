@@ -37,9 +37,10 @@ def detect_feature_types(dataset: Dataset) -> List[Feature]:
             feature_type = 'categorical'
 
         unique_values_count = data[column].nunique()
-        features.append(Feature(
-            name=column, feature_type=feature_type,
-            unique_values=unique_values_count)
-                        )
+        features.append(
+            Feature(name=column, feature_type=feature_type,
+                    unique_values=unique_values_count
+                    )
+        )
 
     return features
