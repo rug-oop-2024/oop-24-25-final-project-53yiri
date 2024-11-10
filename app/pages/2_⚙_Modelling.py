@@ -41,7 +41,7 @@ if "trained" not in st.session_state:
 def get_model(model_name: str) -> Union[
     KNearestNeighbors, Logistic, SupportVectorMachine,
     LassoRegression, MultipleLinearRegression, RandomForest
-        ]:
+]:
     """
     Factory function to instantiate the model based on the selected model name.
 
@@ -127,15 +127,15 @@ if selected_dataset:
     feature_names = [f.name for f in features]
     selected_input_features = st.multiselect(
         "Select Input Features", feature_names
-        )
+    )
     selected_target_feature = st.selectbox(
         "Select Target Feature", feature_names
-        )
+    )
 
     # Determine the task type based on the selected target feature
     target_feature = next(
         (f for f in features if f.name == selected_target_feature), None
-        )
+    )
     task_type = None
     model_options = []
     metric_options = []
@@ -218,7 +218,7 @@ if selected_dataset:
                 feature_type=feat.feature_type,
                 unique_values=feat.unique_values
             ) for feat in features if feat.name in selected_input_features
-            ]
+        ]
         target_feature_obj = Feature(
             name=target_feature.name,
             feature_type=target_feature.feature_type,
@@ -249,10 +249,10 @@ if selected_dataset:
             st.session_state["test_Y"] = pipeline._test_y
             st.session_state["train_predictions"] = results[
                 "predictions"
-                ]["train"]
+            ]["train"]
             st.session_state["test_predictions"] = results[
                 "predictions"
-                ]["test"]
+            ]["test"]
 
             # Display evaluation results
             st.write("### Evaluation Metrics")
@@ -357,11 +357,11 @@ if selected_dataset:
                         train_metric_value = metric(
                             st.session_state["train_Y"],
                             st.session_state["train_predictions"]
-                            )
+                        )
                         test_metric_value = metric(
                             st.session_state["test_Y"],
                             st.session_state["test_predictions"]
-                            )
+                        )
 
                         # Store the results in a dictionary with metric names
                         metric_results[metric_name] = {
