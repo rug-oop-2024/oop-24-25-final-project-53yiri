@@ -44,4 +44,3 @@ class MultipleLinearRegression(Model):
             np.ndarray: Predicted values.
         """
         return self._model.predict(X)
-

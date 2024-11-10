@@ -20,7 +20,7 @@ class RandomForest(Model):
         super().__init__()
         self._model = RandomForestRegressor(
             n_estimators=n_estimators, **kwargs
-            )
+        )
 
     def fit(self, X: np.ndarray, y: np.ndarray) -> None:
         """

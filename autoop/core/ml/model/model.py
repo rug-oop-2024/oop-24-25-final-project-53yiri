@@ -92,7 +92,7 @@ class Model(ABC, BaseModel):
         else:
             raise ValueError(
                 "Unsupported save method. Use 'pickle' or 'json'."
-                )
+            )
 
     def load(self, file_path: str, method: str = 'pickle') -> None:
         """
@@ -111,4 +111,4 @@ class Model(ABC, BaseModel):
         else:
             raise ValueError(
                 "Unsupported load method. Use 'pickle' or 'json'."
-                )
+            )

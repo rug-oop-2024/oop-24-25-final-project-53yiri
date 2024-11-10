@@ -5,6 +5,12 @@ from glob import glob
 
 
 class NotFoundError(Exception):
+    """
+    Exception raised when a specified path is not found.
+
+    Attributes:
+        path (str): The path that was not found.
+    """
     def __init__(self, path: str):
         """
         Custom exception raised when a specified path is not found.
